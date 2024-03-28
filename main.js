@@ -41,15 +41,27 @@ function process_unpaired_events(scope){
   };
 
   // Check for unpaired calendar events
+  var thisMonth = new Date().setDate(1);
+  var firstDay = new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 1);
+  var lastDay = new Date(thisMonth.getFullYear(), thisMonth.getMonth() + 1, 0);
+
+  for (const [calendarName, calendarID] of CALENDAR) {
+    var calendar = CalendarApp.getCalendarById(calendarID);
+    var calendarEvents = calendar.getEvents(firstDay, lastDay);
+    for (const event of calendarEvents) {
+      if (!event.pairedEvent) {
+        createSheetEvent(event);
+        // TODO - This could possibly be a function
+        const extendedProperties = {
+          pairedEvent: true 
+        };
+        event.setExtendedProperties(extendedProperties);
+      }
+    }
+  }
 
 
 
-
-  gather_unpaired_gcal(calendar);
-  unpaired_events = compare_events();
-  add_event_gcal();
-  add_event_spreadsheet();
-  // make sure to update edit times to match cal edit time
 };
 
 function createCalEvent(rowData) {
@@ -57,7 +69,7 @@ function createCalEvent(rowData) {
   // Returns a link to the created event
 
   // TODO - Perform data validation to see if all required fields present
-  // Delay this until write to spreadsheet functions are re-implemented.
+  // DELAY this until write to spreadsheet functions are re-implemented.
   // When we assign variables below, we can also verify they exist and are valid.
   // If not valid, we will write an error message (and highlight row)
 
@@ -88,16 +100,26 @@ function createCalEvent(rowData) {
   event.setExtendedProperties(extendedProperties);
 
   // TODO - Write a link to the calendar event on spreadsheet
-  // Delay this until write to spreadsheet functions are re-implemented.
+  // DELAY this until write to spreadsheet functions are re-implemented.
 
   // TODO - make sure to add the last edited date to both spreadsheet and calendar event
-  // Delay this until write to spreadsheet functions are re-implemented.
+  // DELAY this until write to spreadsheet functions are re-implemented.
   // Perhaps make this a function
 
 };
+
+
+function createSheetEvent(event) {
+  // Uses event object from calendar to create an entry on the ACTIVE spreadsheet
+
+}
+
+
 
 
 // Deleted calendar event caught by spreadsheet having an invalid link to event (as opposed to none)
 // Deleted spreadsheet event caught by edit detection.
 
 // TODO - Abstract the header names instead of hard coding
+
+// TODO more function for readability

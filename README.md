@@ -13,6 +13,7 @@ Each copy of the event will link to its corresponding calendar version of the ev
 ### Entering events on spreadsheet
 Fill out whatever fields you want but do NOT touch last edited OR link fields.  These are used internally by the script.
 The only date field that MUST be filled out is the start date.  Month can be infered and the end date will match start unless told otherwise.
+What fields are required for calendar event to be created?
 
 ### Entering events on calendar
 Do whatever you want.
