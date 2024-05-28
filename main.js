@@ -1,15 +1,30 @@
 // ###################
-// Triggered Functions 
+// Main
 // ###################
-// Triggered periodically
-function main(){
+function main(scope_days){
   // TODO Add a lock?
-  gather_events();
+
+  // Prepare date range
+  var scope_coefficient = scope_days * 24 * 60 * 60 * 1000
+  var currentDate = newDate();
+  var endDate = new Date(currentDate.getTime() + scope_coefficient);
+
+  // Get Events  
+  var calendarEvents = get_calendar_events(startDate, endDate)
+  var sheetEvents = get_sheet_events();
+
+
   process_unpaired_events();
   process_paired_events();
 };
 
-
+// ###################
+// Triggered Functions 
+// ###################
+// Example of feeding scope to main for triggered functions.
+function thirty_days() {
+  main(30)
+}
 
 // Triggered on edit
 function update_last_edit() {
@@ -56,3 +71,7 @@ function process_unpaired_events(scope){
 
 // Deleted calendar event caught by spreadsheet having an invalid link to event (as opposed to none)
 // Deleted spreadsheet event caught by edit detection.
+
+
+// TODO - What do we do if event paired and both changed?
+// TODO - What if its unpaired but it gets filtered by the date?

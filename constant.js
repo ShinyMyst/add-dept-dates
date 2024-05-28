@@ -9,6 +9,10 @@
     'Experimental': CalendarApp.getCalendarById(getCell('B13'))
   } */
 
-  const CALENDARS = {
-    "Experimental": CalendarApp.getCalendarById("c_68e46c1346d80b98f56ca390c3a21cbb31b487bbe825f75a079ca8cb625b58b6@group.calendar.google.com")
-  }
+const CALENDARS = {
+  "Experimental": CalendarApp.getCalendarById("@group.calendar.google.com")
+}
+
+
+const SHEET_URL = "INFO HERE"
+const PAGE_NAME = "NAME"
