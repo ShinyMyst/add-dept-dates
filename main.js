@@ -3,6 +3,7 @@
 // ###################
 // Triggered periodically
 function main(){
+  // TODO Add a lock?
   gather_events();
   process_unpaired_events();
   process_paired_events();
@@ -55,4 +56,3 @@ function process_unpaired_events(scope){
 
 // Deleted calendar event caught by spreadsheet having an invalid link to event (as opposed to none)
 // Deleted spreadsheet event caught by edit detection.
-
