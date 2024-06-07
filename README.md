@@ -1,4 +1,9 @@
 /*
+// TODO - Make a "How to use section"
+// TODO - Make a variable section
+// TODO - Move the flow document here
+// TODO - Make a sumary section
+
 ### The syncing process
 Speadsheet uses the link column to determine if a corresponding event exists within the Google Calendar.
 Google Calendar uses a custom hidden "extendedProperty" boolean to track whether or not it exists within the spreadsheet.

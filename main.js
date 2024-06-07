@@ -5,12 +5,12 @@ function main(scope_days){
   // TODO Add a lock?
 
   // Prepare date range
-  var scope_coefficient = scope_days * 24 * 60 * 60 * 1000
   var currentDate = newDate();
+  var scope_coefficient = scope_days * 24 * 60 * 60 * 1000
   var endDate = new Date(currentDate.getTime() + scope_coefficient);
 
-  // Get Events  
-  var calendarEvents = get_calendar_events(startDate, endDate)
+  // Get Events
+  var calendarEvents = get_calendar_events(currentDate, endDate)
   var sheetEvents = get_sheet_events();
 
 
@@ -18,23 +18,10 @@ function main(scope_days){
   process_paired_events();
 };
 
-// ###################
-// Triggered Functions 
-// ###################
-// Example of feeding scope to main for triggered functions.
-function thirty_days() {
-  main(30)
-}
 
-// Triggered on edit
-function update_last_edit() {
-  // Update the last edited time column to match when row was last edited.
-  // Update the corresponding calendar event
-  // If for some reason the calendar event has a newer edit date than the spreadsheet...
-};
 
 // ###################
-// Supporting Functions 
+// Supporting Functions
 // ###################
 // Consider storing the date script last ran?
 // Use this date to limit which gCal events are pulled
@@ -75,3 +62,9 @@ function process_unpaired_events(scope){
 
 // TODO - What do we do if event paired and both changed?
 // TODO - What if its unpaired but it gets filtered by the date?
+
+/* NOTES - Include in documentation
+On edit functtion required to keep last edited values up-to-date
+This script does not edit events that are over.
+
+*/

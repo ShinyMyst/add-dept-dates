@@ -8,7 +8,7 @@ const activeSheet = spreadsheetApp.openbyUrl(UD_SPREADSHEET_URL);
 const activePage = activeSheet.getSheetByName(PAGE_NAME);
 const rawData = activePage.getDataRange().getValues();
 
-const topRow = rawData[0]; 
+const topRow = rawData[0];
 const DATA = rawData.slice(1);
 
 function getColumnNumber(headerName){
