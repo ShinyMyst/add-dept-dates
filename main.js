@@ -10,12 +10,70 @@ function main(scope_days){
   // ### Get Events ###
   var calendarEvents = get_calendar_events(currentDate, endDate)
   var sheetData = get_sheet_events();
-  var headers = sheetData[0];
+  var headers = sheetData[0]; // TODO make this globally referencable?
   var sheetData = sheetData.slice(1);
 
   // ### Iterate through Sheet Events ###
-  startRow = getStartRow(sheetData, endDate);
+  const endDateIndex = headers.indexOf("Ends")
+  let startRow = getStartRow(sheetData, endDateIndex);
+  let currentRow = startRow;
+  while (currentRow < sheetData.length && new Date(sheetData[currentRow][endDateIndex]) >= currentDate) {
+    console.log(sheetData[currentRow]);
+    // If event lacks calendar link, make it
+    if (!sheetData[currentRow][headers.indexOf("Calendar Link")]) {
+      let updateDate = createCalendarEvent(sheetData[currentRow])
+      writeLastUpdate(updateDate)
+    }
+    else {
+      // TODO get event URL data at start of this instead?
+      sheetLastUpdated = sheetData[currentRow][headers.indexOf("Last Edited")] 
+      calendarLastUpdated = getCalendarLastUpdate(eventURL);
+      if (sheetLastUpdated > calendarLastUpdated) {
+        let updateDate = updateCalendarEvent(eventURL);
+        writeLastUpdate(updateDate);
+      }
+      else if (sheetLastUpdated < calendarLastUpdated) {
+        writeUpdateSheetData(eventURL)
+        writeLastUpdate(sheetLastUpdated);
+      }
+    }
+    // If event has calendar link, compare them
+    currentRow++; 
+  }
+
+  // ### Iterate through Calendar Events ###
+
+  // ### Finishing Touches ###
+
+
 };
+
+function writeSheetData(eventURL){
+  console.log("Not written")
+  // Write dasta from calendar event to sheet
+}
+
+function updateCalendarEvent(eventURL){
+  console.log("Not written")
+  // return last update
+}
+
+
+function getCalendarLastUpdate(eventURL){
+  console.log("Not written")
+}
+
+function createCalendarEvent(eventData){
+  // Given info from a particular row, adds it to the Google calendar
+  console.log("Not written")
+  // retrun last update
+
+}
+
+function writeLastUpdate(eventRow, updateDate) {
+  // Changes the last updated column for given event
+  console.log("Not written")
+}
 
 
 function getStartRow(sheetData, eventIndex) {
@@ -24,15 +82,15 @@ function getStartRow(sheetData, eventIndex) {
   startRow = 1                              // TODO - make this get a cell from sheet instead
 
   // Move forward until we find first event that has not occured yet.
-  if (sheetData[startRow][eventIndex] <= currentDate) {
-    while (sheetData[startRow][eventIndex] <= currentDate && startRow < sheetData.length) {
+  if (new Date(sheetData[startRow][eventIndex] <= currentDate)) {
+    while (new Date(sheetData[startRow][eventIndex]) <= currentDate && startRow < sheetData.length) {
         startRow += 1;
     };
   }
 
   // Move backwards until we find first event that has not occured yet
-  else if (sheetData[startRow][eventIndex] >= currentDate && startRow > 1) {
-      while (sheetData[startRow][eventIndex] >= currentDate) {
+  else if (new Date(sheetData[startRow][eventIndex]) >= currentDate && startRow > 1) {
+      while (new Date(sheetData[startRow][eventIndex]) >= currentDate) {
           startRow -= 1;
       };
   }
@@ -45,10 +103,10 @@ function getStartRow(sheetData, eventIndex) {
 }
 
 
-
-
-
-
+// TODO - make a debug bool at top to tweak values when testing
+// TODO sort these notes
+// TODO don't hard code strings for headers
+// TODO - write function mean its writing to spreadsheet, create makes an event, get gets data
 
 // TODO clean up the notes
 // TODO make headers match main section
