@@ -11,8 +11,8 @@ function get_calendar_events(startDate, endDate){
     var allEvents = [];
 
     for (const calendar of Object.values(CALENDARS)){
-        const calEvents = _pull_from_calendar(calendar, startDate, endDate)
-        allEvents = events.concat(calendarEvents)
+        const calendarEvents = _pull_from_calendar(calendar, startDate, endDate)
+        allEvents.concat(calendarEvents)
     }
 
     return allEvents
@@ -28,9 +28,9 @@ function _pull_from_calendar(calendar, startDate, endDate){
 
 function get_sheet_events(){
     // Gather all events from sheet sans header
-    const activeSheet = spreadsheetApp.openbyUrl(SHEET_URL);
+    const activeSheet = SpreadsheetApp.openByUrl(SHEET_URL);
     const activePage = activeSheet.getSheetByName(PAGE_NAME);
     const rawData = activePage.getDataRange().getValues();
 
-    return rawData.slice(1);
+    return rawData;
   };
