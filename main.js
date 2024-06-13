@@ -14,6 +14,8 @@ function main(scope_days){
   var sheetData = sheetData.slice(1);
 
   // ### Iterate through Sheet Events ###
+  // TODO make sheet data update global values instead?
+  // Define it in constants but set the data here in main (or a sub function)
   const endDateIndex = headers.indexOf("Ends")
   let startRow = getStartRow(sheetData, endDateIndex);
   let currentRow = startRow;
@@ -27,7 +29,7 @@ function main(scope_days){
     else {
       // TODO get event URL data at start of this instead?
       sheetLastUpdated = sheetData[currentRow][headers.indexOf("Last Edited")] 
-      calendarLastUpdated = getCalendarLastUpdate(eventURL);
+      calendarLastUpdated = getCalendarLastModified(eventURL);
       if (sheetLastUpdated > calendarLastUpdated) {
         let updateDate = updateCalendarEvent(eventURL);
         writeLastUpdate(updateDate);
@@ -48,31 +50,73 @@ function main(scope_days){
 
 };
 
-function writeSheetData(eventURL){
-  console.log("Not written")
-  // Write dasta from calendar event to sheet
+function writeSheetData(activeSheet, eventObject){
+  // Month
+  let cell = activeSheet.getRange(eventRowInt, headers.indexOf("Month"));
+  cell.setvalue(eventObject.getStartTime().getMonth()+1);
+  // Starts
+  cell = activeSheet.getRange(eventRowInt, headers.indexOf("Starts"));
+  cell.setvalue(eventObject.getStartTime());
+  // Ends
+  cell = activeSheet.getRange(eventRowInt, headers.indexOf("Ends"));
+  cell.setvalue(eventObject.getEndTime());
+  // Calendar
+  cell = activeSheet.getRange(eventRowInt, headers.indexOf("Calendar"));
+  cell.setvalue(eventObject.getOriginalCalendarId()); // TODO - probably need to convert to str
+  // EventID
+  cell = activeSheet.getRange(eventRowInt, headers.indexOf("Event ID"));
+  cell.setvalue(eventObject.getId());
+  // Description
+  cell = activeSheet.getRange(eventRowInt, headers.indexOf("Description"));
+  cell.setvalue(eventObject.getDescription());
+  // Last Modified
+  cell = activeSheet.getRange(eventRowInt, headers.indexOf("Last Modified"));
+  cell.setvalue(eventObject.getLastUpdated());
+  // Event Link
+  let eventLink = "https://www.google.com/calendar/event?eid=" + encodeURIComponent(eventId);
+  cell = activeSheet.getRange(eventRowInt, headers.indexOf("Event Link"));
+  cell.setvalue(eventLink); 
 }
 
-function updateCalendarEvent(eventURL){
-  console.log("Not written")
-  // return last update
+function updateCalendarEvent(calendar, eventId){
+  let event = calendar.getEventById(eventId);
+  if (!event) {
+    console.error("ERROR: Could not find modified date.")
+    return null
+  }
+    event.setTitle = eventData[headers.indexOf("Event")];
+    // TODO - How cna we update time while not overwriting an actual event with times with default time values
+
+    return event.getLastUpdated()
 }
 
 
-function getCalendarLastUpdate(eventURL){
-  console.log("Not written")
+
+function getCalendarLastUpdated(calendar, eventId){
+  let event = calendar.getEventById(eventId);
+  if (!event) {
+    console.error("ERROR: Could not find modified date.")
+    return null
+  }
+  return event.getLastUpdated()
 }
 
-function createCalendarEvent(eventData){
-  // Given info from a particular row, adds it to the Google calendar
-  console.log("Not written")
-  // retrun last update
-
+function createCalendarEvent(headers, eventData){
+  let title = eventData[headers.indexOf("Event")];
+  let calendar = eventData[headers.indexOf("Calendar")];
+  let start = new Date(eventData[headers.indexOf("Starts")]);
+  let end = new Date(eventData[headers.indexOf("Ends")]);
+  let description = eventData[headers.indexOf("Description")];
+  let event = calendar.createEvent(title, start, end, {description: description});
+  return event.getLastUpdated()
 }
 
-function writeLastUpdate(eventRow, updateDate) {
+
+
+function writeLastUpdate(activeSheet, headers, eventRowInt, updateDate) {
   // Changes the last updated column for given event
-  console.log("Not written")
+  let cell = activeSheet.getRange(eventRowInt, headers.indexOf("Last Modified"))
+  cell.setvalue(updateDate)
 }
 
 
@@ -95,7 +139,7 @@ function getStartRow(sheetData, eventIndex) {
       };
   }
   else {
-    console.error("Error occured determining proper date");
+    console.error("ERROR: Could not find start row.");
   };
 
   // TODO - write this value to sheet for future reference
@@ -103,6 +147,9 @@ function getStartRow(sheetData, eventIndex) {
 }
 
 
+// TODO - How to handle deleting events?
+// TODO - add staff members to the list/.
+// TODO - only convert to date object when it has to be that format
 // TODO - make a debug bool at top to tweak values when testing
 // TODO sort these notes
 // TODO don't hard code strings for headers
