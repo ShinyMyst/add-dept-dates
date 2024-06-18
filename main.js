@@ -147,35 +147,18 @@ function getStartRow(sheetData, eventIndex) {
 }
 
 
-// TODO - How to handle deleting events?
-// TODO - add staff members to the list/.
-// TODO - only convert to date object when it has to be that format
-// TODO - make a debug bool at top to tweak values when testing
-// TODO sort these notes
-// TODO don't hard code strings for headers
-// TODO - write function mean its writing to spreadsheet, create makes an event, get gets data
-
-// TODO clean up the notes
-// TODO make headers match main section
-
-// Deleted calendar event caught by spreadsheet having an invalid link to event (as opposed to none)
-// Deleted spreadsheet event caught by edit detection.
+ // ### TODO ###
+// TODO - Deleting events?
+// TODO - Replace headers with constants
+// TODO - Combine README and FLOW
+// TODO - Include Instructions in README for new calendar
+// TODO - Correct variable names to use JavaScript style
+// TODO - Only use date as needed (don't return as date) 
+// TODO - Start Date's time should be set to midnight-1 rather than current time
+// TODO - Sync flow names and main titles
+// TODO - On edit function needs to update last edited column
 
 
-// TODO - What do we do if event paired and both changed?
-// TODO - What if its unpaired but it gets filtered by the date?
-
-/* NOTES - Include in documentation
-On edit functtion required to keep last edited values up-to-date
+/* README - 
 This script does not edit events that are over.
-NOTE - we're going to omit the lock.  
-We can't lock calendar events so there's a chance
-things will be edited during script run phase.
-Just time it to mitigate the risk.
-TODO - Sort all thesed ntoes into one place.
-TODO - instructions for adding calendar
-TODO - fix variables names to match java style
-TODO - explain the find starting point section.  We loop until condition breaks to ensure we're at first event > currentTime
-TODO - Make the start date function actually do a second before midnbight to include events from current day as well
-
 */

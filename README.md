@@ -43,3 +43,4 @@ All UD lib files require you to include the sheet url as well as the page name o
 
 ### NOTES
 Calendars are hard-coded by ID in constants
+Events that are already over are not changed.

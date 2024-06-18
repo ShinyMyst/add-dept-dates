@@ -6,7 +6,8 @@
     - Checking a week ahead might occur daily.
 
 ## Prepare Sheet
-- Lock the sheet to prevent concurrent edits.
+- Locking sheet won't prevent calendar edits.  
+- Instead, set trigger to run at time to minimize risk.
 - Retrieve the `currentTime`.
 - Use scope to calculate the target `endDate`
 
@@ -24,12 +25,14 @@
 - We want to begin at the first date in the future.
     > Events may get deleted, so we cannot assume the row number is accurate.
     > Instead, we use it as a starting point and verify the accuracy.
+    > The loop is used to determine first date in range.
 - If `eventDate` < `currentTime`
     - Move forward until `eventDate` > `currentTime`
     - Save this as `startRow`
 - If `eventDate` > `currentTime`
     - Move backwards until `eventDate` < `currentTime`
     - Save the row before this occurs as `startRow`
+
 
 #### Process Events
 - Start iterating through all sheet events starting at `startRow`

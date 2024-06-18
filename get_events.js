@@ -2,7 +2,7 @@
 Scope determines the number of days in future script will search for events to limit size. (scope)
 */
 
-//TODO - Note which globals are needed here
+// Globals - CALENDARS, SHEET_URL, PAGE_NAME
 
 function get_calendar_events(startDate, endDate){
     // Gather events from all calendar within given scope
