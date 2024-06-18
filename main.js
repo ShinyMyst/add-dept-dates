@@ -1,47 +1,23 @@
 // ###################
 // Main
 // ###################
-function main(scope_days){
-  // ### Prepare Dates ###
+function main(daysInScope){
+  // ### Set Dates ###
   var currentDate = new Date();
-  var scope = scope_days * 24 * 60 * 60 * 1000
-  var endDate = new Date(currentDate.getTime() + scope);
+  currentDate.setHours(0, 0, 0, 0) // Set time to midnight to include all events
+  var endDate = new Date(currentDate.getTime());
+  endDate.setDate(endDate.getDate() + daysInScope)
 
-  // ### Get Events ###
+  // ### Get Data ###
+  // TODO - GLOBALS: ACTIVE_SHEET, HEADERS, SHEET_DATA,
+
   var calendarEvents = get_calendar_events(currentDate, endDate)
-  var sheetData = get_sheet_events();
-  var headers = sheetData[0]; // TODO make this globally referencable?
-  var sheetData = sheetData.slice(1);
+  const SHEET_DATA = get_sheet_events();
+  const HEADERS = sheetData[0]; // TODO make this globally referencable?
+  SHEET_DATA.slice(1);
 
   // ### Iterate through Sheet Events ###
-  // TODO make sheet data update global values instead?
-  // Define it in constants but set the data here in main (or a sub function)
-  const endDateIndex = headers.indexOf("Ends")
-  let startRow = getStartRow(sheetData, endDateIndex);
-  let currentRow = startRow;
-  while (currentRow < sheetData.length && new Date(sheetData[currentRow][endDateIndex]) >= currentDate) {
-    console.log(sheetData[currentRow]);
-    // If event lacks calendar link, make it
-    if (!sheetData[currentRow][headers.indexOf("Calendar Link")]) {
-      let updateDate = createCalendarEvent(sheetData[currentRow])
-      writeLastUpdate(updateDate)
-    }
-    else {
-      // TODO get event URL data at start of this instead?
-      sheetLastUpdated = sheetData[currentRow][headers.indexOf("Last Edited")] 
-      calendarLastUpdated = getCalendarLastModified(eventURL);
-      if (sheetLastUpdated > calendarLastUpdated) {
-        let updateDate = updateCalendarEvent(eventURL);
-        writeLastUpdate(updateDate);
-      }
-      else if (sheetLastUpdated < calendarLastUpdated) {
-        writeUpdateSheetData(eventURL)
-        writeLastUpdate(sheetLastUpdated);
-      }
-    }
-    // If event has calendar link, compare them
-    currentRow++; 
-  }
+
 
   // ### Iterate through Calendar Events ###
 
@@ -50,44 +26,77 @@ function main(scope_days){
 
 };
 
-function writeSheetData(activeSheet, eventObject){
-  // Month
-  let cell = activeSheet.getRange(eventRowInt, headers.indexOf("Month"));
-  cell.setvalue(eventObject.getStartTime().getMonth()+1);
-  // Starts
-  cell = activeSheet.getRange(eventRowInt, headers.indexOf("Starts"));
-  cell.setvalue(eventObject.getStartTime());
-  // Ends
-  cell = activeSheet.getRange(eventRowInt, headers.indexOf("Ends"));
-  cell.setvalue(eventObject.getEndTime());
-  // Calendar
-  cell = activeSheet.getRange(eventRowInt, headers.indexOf("Calendar"));
-  cell.setvalue(eventObject.getOriginalCalendarId()); // TODO - probably need to convert to str
-  // EventID
-  cell = activeSheet.getRange(eventRowInt, headers.indexOf("Event ID"));
-  cell.setvalue(eventObject.getId());
-  // Description
-  cell = activeSheet.getRange(eventRowInt, headers.indexOf("Description"));
-  cell.setvalue(eventObject.getDescription());
-  // Last Modified
-  cell = activeSheet.getRange(eventRowInt, headers.indexOf("Last Modified"));
-  cell.setvalue(eventObject.getLastUpdated());
-  // Event Link
-  let eventLink = "https://www.google.com/calendar/event?eid=" + encodeURIComponent(eventId);
-  cell = activeSheet.getRange(eventRowInt, headers.indexOf("Event Link"));
-  cell.setvalue(eventLink); 
+function iterateThroughSheet(currentDate, endDate){
+  // TODO - Better to use endDate or start Date index?
+  const endDateIndex = HEADERS.indexOf("Ends")
+  var calendarEvent = null
+  let currentRow = _getStartRow(SHEET_DATA, endDateIndex);
+  let currentEventDate = new Date(SHEET_DATA[currentRow][endDateIndex])
+
+  while (currentRow < SHEET_DATA.length && endDate >= currentEventDate >= currentDate) {
+    // If event lacks calendar link, make calendar event
+    if (!SHEET_DATA[currentRow][HEADERS.indexOf("Calendar Link")]) {
+      calendarEvent = _createCalendarEvent(SHEET_DATA[currentRow])
+    }
+
+    // Else, determine if sheet or calendar more up-to-date
+    else {
+      let sheetLastUpdated = SHEET_DATA[currentRow][HEADERS.indexOf("Last Edited")] 
+      let calendarLastUpdated = getCalendarLastModified(eventUrl);
+      calendarEvent = _getEventObject() // TODO this function isn't real
+
+      if (sheetLastUpdated > calendarLastUpdated) {
+        _updateCalendarEvent(calendarEvent);
+      }
+      else if (sheetLastUpdated < calendarLastUpdated) {
+        _writeEventRow(eventObject)
+      }
+    }
+
+    _writeLastUpdated(calendarEvent.getLastUpdated());
+    currentRow++; 
+    currentEventDate = new Date(SHEET_DATA[currentRow][endDateIndex]) 
+  };
+
+};
+
+function _getEventObject(){
+  console.log("MAKE THIS")
+  // This function is fake for now
 }
 
-function updateCalendarEvent(calendar, eventId){
-  let event = calendar.getEventById(eventId);
-  if (!event) {
-    console.error("ERROR: Could not find modified date.")
-    return null
-  }
-    event.setTitle = eventData[headers.indexOf("Event")];
-    // TODO - How cna we update time while not overwriting an actual event with times with default time values
 
-    return event.getLastUpdated()
+function _writeEventRow(calendarEvent){
+  /* Given a calendar event object, writes details to given row. */
+
+  // Get Event Link
+  eventLink = "https://www.google.com/calendar/event?eid=" + encodeURIComponent(calendarEvent.getId());
+
+  // Get Cells
+  let monthCell = ACTIVE_SHEET.getRange(eventRowInt, HEADERS.indexOf("Month"));
+  let startsCell = ACTIVE_SHEET.getRange(eventRowInt, HEADERS.indexOf("Starts"));
+  let endsCell = ACTIVE_SHEET.getRange(eventRowInt, HEADERS.indexOf("Ends"));
+  let calendarCell = ACTIVE_SHEET.getRange(eventRowInt, HEADERS.indexOf("Calendar"));
+  let eventIdCell = ACTIVE_SHEET.getRange(eventRowInt, HEADERS.indexOf("Event ID"));
+  let descriptionCell = ACTIVE_SHEET.getRange(eventRowInt, HEADERS.indexOf("Description"));
+  let lastModifiedCell = ACTIVE_SHEET.getRange(eventRowInt, HEADERS.indexOf("Last Modified"));
+  let eventLinkCell = ACTIVE_SHEET.getRange(eventRowInt, HEADERS.indexOf("Event Link"));
+
+  // Set Values
+  monthCell.setvalue(calendarEvent.getStartTime().getMonth()+1);
+  startsCell.setvalue(calendarEvent.getStartTime());
+  endsCell.setvalue(calendarEvent.getEndTime());
+  calendarCell.setvalue(calendarEvent.getOriginalCalendarId()); // TODO - probably need to convert to str
+  eventIdCell.setvalue(calendarEvent.getId());
+  descriptionCell.setvalue(calendarEvent.getDescription());
+  lastModifiedCell.setvalue(calendarEvent.getLastUpdated());
+  eventLinkCell.setvalue(eventLink); 
+}
+
+
+function _updateCalendarEvent(calendarEvent){
+    calendarEvent.setTitle = eventData[HEADERS.indexOf("Event")];
+    // TODO - How cna we update time while not overwriting an actual event with times with default time values
 }
 
 
@@ -101,40 +110,41 @@ function getCalendarLastUpdated(calendar, eventId){
   return event.getLastUpdated()
 }
 
-function createCalendarEvent(headers, eventData){
-  let title = eventData[headers.indexOf("Event")];
-  let calendar = eventData[headers.indexOf("Calendar")];
-  let start = new Date(eventData[headers.indexOf("Starts")]);
-  let end = new Date(eventData[headers.indexOf("Ends")]);
-  let description = eventData[headers.indexOf("Description")];
+function _createCalendarEvent(eventData){
+  let title = eventData[HEADERS.indexOf("Event")];
+  let calendar = eventData[HEADERS.indexOf("Calendar")];
+  let start = new Date(eventData[HEADERS.indexOf("Starts")]);
+  let end = new Date(eventData[HEADERS.indexOf("Ends")]);
+  let description = eventData[HEADERS.indexOf("Description")];
   let event = calendar.createEvent(title, start, end, {description: description});
-  return event.getLastUpdated()
+  return event
 }
 
 
 
-function writeLastUpdate(activeSheet, headers, eventRowInt, updateDate) {
+function _writeLastUpdated(eventRowInt, updateDate) {
   // Changes the last updated column for given event
-  let cell = activeSheet.getRange(eventRowInt, headers.indexOf("Last Modified"))
+  let cell = ACTIVE_SHEET.getRange(eventRowInt, HEADERS.indexOf("Last Modified"))
   cell.setvalue(updateDate)
 }
 
 
-function getStartRow(sheetData, eventIndex) {
+function _getStartRow(eventIndex) {
   // Determines the row of first event that hasn't ended.
   // Keep in mind startRow is an estimate based on previous status of sheet.
+  
   startRow = 1                              // TODO - make this get a cell from sheet instead
 
   // Move forward until we find first event that has not occured yet.
-  if (new Date(sheetData[startRow][eventIndex] <= currentDate)) {
-    while (new Date(sheetData[startRow][eventIndex]) <= currentDate && startRow < sheetData.length) {
+  if (new Date(SHEET_DATA[startRow][eventIndex] <= currentDate)) {
+    while (new Date(SHEET_DATA[startRow][eventIndex]) <= currentDate && startRow < SHEET_DATA.length) {
         startRow += 1;
     };
   }
 
   // Move backwards until we find first event that has not occured yet
-  else if (new Date(sheetData[startRow][eventIndex]) >= currentDate && startRow > 1) {
-      while (new Date(sheetData[startRow][eventIndex]) >= currentDate) {
+  else if (new Date(SHEET_DATA[startRow][eventIndex]) >= currentDate && startRow > 1) {
+      while (new Date(SHEET_DATA[startRow][eventIndex]) >= currentDate) {
           startRow -= 1;
       };
   }
@@ -154,7 +164,6 @@ function getStartRow(sheetData, eventIndex) {
 // TODO - Include Instructions in README for new calendar
 // TODO - Correct variable names to use JavaScript style
 // TODO - Only use date as needed (don't return as date) 
-// TODO - Start Date's time should be set to midnight-1 rather than current time
 // TODO - Sync flow names and main titles
 // TODO - On edit function needs to update last edited column
 
