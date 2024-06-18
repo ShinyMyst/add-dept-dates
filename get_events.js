@@ -12,7 +12,7 @@ function get_calendar_events(startDate, endDate){
 
     for (const calendar of Object.values(CALENDARS)){
         const calendarEvents = _pull_from_calendar(calendar, startDate, endDate)
-        allEvents.concat(calendarEvents)
+        allEvents = allEvents.concat(calendarEvents)
     }
 
     return allEvents

@@ -17,9 +17,10 @@ function main(daysInScope){
   SHEET_DATA.slice(1);
 
   // ### Iterate through Sheet Events ###
-
+  iterateThroughSheet(currentDate, endDate)
 
   // ### Iterate through Calendar Events ###
+  iterateThroughCalendarEvents(calendarEvents);
 
   // ### Finishing Touches ###
 
@@ -49,7 +50,7 @@ function iterateThroughSheet(currentDate, endDate){
         _updateCalendarEvent(calendarEvent);
       }
       else if (sheetLastUpdated < calendarLastUpdated) {
-        _writeEventRow(eventObject)
+        _writeEventRow(eventObject, targetRow) // TODO - where is target row
       }
     }
 
@@ -61,26 +62,26 @@ function iterateThroughSheet(currentDate, endDate){
 };
 
 function _getEventObject(){
+  // TODO - Function not done
   console.log("MAKE THIS")
-  // This function is fake for now
 }
 
 
-function _writeEventRow(calendarEvent){
+function _writeEventRow(calendarEvent, targetRow){
   /* Given a calendar event object, writes details to given row. */
 
   // Get Event Link
   eventLink = "https://www.google.com/calendar/event?eid=" + encodeURIComponent(calendarEvent.getId());
 
   // Get Cells
-  let monthCell = ACTIVE_SHEET.getRange(eventRowInt, HEADERS.indexOf("Month"));
-  let startsCell = ACTIVE_SHEET.getRange(eventRowInt, HEADERS.indexOf("Starts"));
-  let endsCell = ACTIVE_SHEET.getRange(eventRowInt, HEADERS.indexOf("Ends"));
-  let calendarCell = ACTIVE_SHEET.getRange(eventRowInt, HEADERS.indexOf("Calendar"));
-  let eventIdCell = ACTIVE_SHEET.getRange(eventRowInt, HEADERS.indexOf("Event ID"));
-  let descriptionCell = ACTIVE_SHEET.getRange(eventRowInt, HEADERS.indexOf("Description"));
-  let lastModifiedCell = ACTIVE_SHEET.getRange(eventRowInt, HEADERS.indexOf("Last Modified"));
-  let eventLinkCell = ACTIVE_SHEET.getRange(eventRowInt, HEADERS.indexOf("Event Link"));
+  let monthCell = ACTIVE_SHEET.getRange(targetRow, HEADERS.indexOf("Month"));
+  let startsCell = ACTIVE_SHEET.getRange(targetRow, HEADERS.indexOf("Starts"));
+  let endsCell = ACTIVE_SHEET.getRange(targetRow, HEADERS.indexOf("Ends"));
+  let calendarCell = ACTIVE_SHEET.getRange(targetRow, HEADERS.indexOf("Calendar"));
+  let eventIdCell = ACTIVE_SHEET.getRange(targetRow, HEADERS.indexOf("Event ID"));
+  let descriptionCell = ACTIVE_SHEET.getRange(targetRow, HEADERS.indexOf("Description"));
+  let lastModifiedCell = ACTIVE_SHEET.getRange(targetRow, HEADERS.indexOf("Last Modified"));
+  let eventLinkCell = ACTIVE_SHEET.getRange(targetRow, HEADERS.indexOf("Event Link"));
 
   // Set Values
   monthCell.setvalue(calendarEvent.getStartTime().getMonth()+1);
@@ -95,20 +96,11 @@ function _writeEventRow(calendarEvent){
 
 
 function _updateCalendarEvent(calendarEvent){
+    // TODO - Function not done
     calendarEvent.setTitle = eventData[HEADERS.indexOf("Event")];
     // TODO - How cna we update time while not overwriting an actual event with times with default time values
 }
 
-
-
-function getCalendarLastUpdated(calendar, eventId){
-  let event = calendar.getEventById(eventId);
-  if (!event) {
-    console.error("ERROR: Could not find modified date.")
-    return null
-  }
-  return event.getLastUpdated()
-}
 
 function _createCalendarEvent(eventData){
   let title = eventData[HEADERS.indexOf("Event")];
@@ -117,10 +109,20 @@ function _createCalendarEvent(eventData){
   let end = new Date(eventData[HEADERS.indexOf("Ends")]);
   let description = eventData[HEADERS.indexOf("Description")];
   let event = calendar.createEvent(title, start, end, {description: description});
+  setExtendedProperty(event)
+
   return event
 }
 
 
+function setExtendedProperty(calendarEvent){
+  var extendedProps = {
+    private: {
+        "pairedRow": "true"
+    }
+  }
+  calendarEvent.setExtendedProperties(extendedProps.private);
+};
 
 function _writeLastUpdated(eventRowInt, updateDate) {
   // Changes the last updated column for given event
@@ -154,6 +156,21 @@ function _getStartRow(eventIndex) {
 
   // TODO - write this value to sheet for future reference
   return startRow
+}
+
+
+function iterateThroughCalendarEvents(calendarEvents){
+  for (const event of calendarEvents) {
+    // No Paired Event Exists
+    if (!event.extendedProperties || event.extendedProperties.private['pairedRow'] !== 'true'){
+      _writeEventRow(event, targetRow);
+      setExtendedProperty(event);
+    }
+    // Paired Events were checked during sheet iteration
+    else {
+      console.log("No action needed: Paired event", event.getTitle());
+    }
+  };
 }
 
 
