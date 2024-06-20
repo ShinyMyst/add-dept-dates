@@ -2,8 +2,6 @@
 Scope determines the number of days in future script will search for events to limit size. (scope)
 */
 
-// TODO - Globals  CALENDARS, SHEET_URL, PAGE_NAME
-
 function get_calendar_events(startDate, endDate){
     // Gather events from all calendar within given scope
     // Returns a single list regardless of source calendar
@@ -33,4 +31,4 @@ function get_sheet_events(){
     const rawData = activePage.getDataRange().getValues();
 
     return rawData;
-  };
+};

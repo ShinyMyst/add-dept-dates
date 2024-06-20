@@ -9,11 +9,15 @@ function main(daysInScope){
   endDate.setDate(endDate.getDate() + daysInScope)
 
   // ### Get Data ###
-  // TODO - GLOBALS: ACTIVE_SHEET, HEADERS, SHEET_DATA,
-
+  // TODO - make headers, and sheet data local?
+  // Calendar
   var calendarEvents = get_calendar_events(currentDate, endDate)
-  const SHEET_DATA = get_sheet_events();
-  const HEADERS = sheetData[0]; // TODO make this globally referencable?
+
+  // Spreadsheet Info
+  let activeSheet = SpreadsheetApp.openByUrl(SHEET_URL);
+  PAGE = activeSheet.getSheetByName(PAGE_NAME);
+  SHEET_DATA = PAGE.getDataRange().getValues();
+  HEADERS = SHEET_DATA[0];
   SHEET_DATA.slice(1);
 
   // ### Iterate through Sheet Events ###
@@ -55,8 +59,8 @@ function iterateThroughSheet(currentDate, endDate){
     }
 
     _writeLastUpdated(calendarEvent.getLastUpdated());
-    currentRow++; 
-    currentEventDate = new Date(SHEET_DATA[currentRow][endDateIndex]) 
+    currentRow++;
+    currentEventDate = new Date(SHEET_DATA[currentRow][endDateIndex])
   };
 
 };
@@ -74,14 +78,14 @@ function _writeEventRow(calendarEvent, targetRow){
   eventLink = "https://www.google.com/calendar/event?eid=" + encodeURIComponent(calendarEvent.getId());
 
   // Get Cells
-  let monthCell = ACTIVE_SHEET.getRange(targetRow, HEADERS.indexOf("Month"));
-  let startsCell = ACTIVE_SHEET.getRange(targetRow, HEADERS.indexOf("Starts"));
-  let endsCell = ACTIVE_SHEET.getRange(targetRow, HEADERS.indexOf("Ends"));
-  let calendarCell = ACTIVE_SHEET.getRange(targetRow, HEADERS.indexOf("Calendar"));
-  let eventIdCell = ACTIVE_SHEET.getRange(targetRow, HEADERS.indexOf("Event ID"));
-  let descriptionCell = ACTIVE_SHEET.getRange(targetRow, HEADERS.indexOf("Description"));
-  let lastModifiedCell = ACTIVE_SHEET.getRange(targetRow, HEADERS.indexOf("Last Modified"));
-  let eventLinkCell = ACTIVE_SHEET.getRange(targetRow, HEADERS.indexOf("Event Link"));
+  let monthCell = PAGE.getRange(targetRow, HEADERS.indexOf("Month"));
+  let startsCell = PAGE.getRange(targetRow, HEADERS.indexOf("Starts"));
+  let endsCell = PAGE.getRange(targetRow, HEADERS.indexOf("Ends"));
+  let calendarCell = PAGE.getRange(targetRow, HEADERS.indexOf("Calendar"));
+  let eventIdCell = PAGE.getRange(targetRow, HEADERS.indexOf("Event ID"));
+  let descriptionCell = PAGE.getRange(targetRow, HEADERS.indexOf("Description"));
+  let lastModifiedCell = PAGE.getRange(targetRow, HEADERS.indexOf("Last Modified"));
+  let eventLinkCell = PAGE.getRange(targetRow, HEADERS.indexOf("Event Link"));
 
   // Set Values
   monthCell.setvalue(calendarEvent.getStartTime().getMonth()+1);
@@ -126,7 +130,7 @@ function setExtendedProperty(calendarEvent){
 
 function _writeLastUpdated(eventRowInt, updateDate) {
   // Changes the last updated column for given event
-  let cell = ACTIVE_SHEET.getRange(eventRowInt, HEADERS.indexOf("Last Modified"))
+  let cell = PAGE.getRange(eventRowInt, HEADERS.indexOf("Last Modified"))
   cell.setvalue(updateDate)
 }
 
@@ -134,7 +138,7 @@ function _writeLastUpdated(eventRowInt, updateDate) {
 function _getStartRow(eventIndex) {
   // Determines the row of first event that hasn't ended.
   // Keep in mind startRow is an estimate based on previous status of sheet.
-  
+
   startRow = 1                              // TODO - make this get a cell from sheet instead
 
   // Move forward until we find first event that has not occured yet.
@@ -180,11 +184,11 @@ function iterateThroughCalendarEvents(calendarEvents){
 // TODO - Combine README and FLOW
 // TODO - Include Instructions in README for new calendar
 // TODO - Correct variable names to use JavaScript style
-// TODO - Only use date as needed (don't return as date) 
+// TODO - Only use date as needed (don't return as date)
 // TODO - Sync flow names and main titles
 // TODO - On edit function needs to update last edited column
 
 
-/* README - 
+/* README -
 This script does not edit events that are over.
 */
