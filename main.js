@@ -9,7 +9,6 @@ function main(daysInScope){
   endDate.setDate(endDate.getDate() + daysInScope)
 
   // ### Get Data ###
-  // TODO - make headers, and sheet data local?
   // Calendar
   var calendarEvents = get_calendar_events(currentDate, endDate)
 
@@ -46,7 +45,7 @@ function iterateThroughSheet(currentDate, endDate){
 
     // Else, determine if sheet or calendar more up-to-date
     else {
-      let sheetLastUpdated = SHEET_DATA[currentRow][HEADERS.indexOf("Last Edited")] 
+      let sheetLastUpdated = SHEET_DATA[currentRow][HEADERS.indexOf("Last Edited")]
       let calendarLastUpdated = getCalendarLastModified(eventUrl);
       calendarEvent = _getEventObject() // TODO this function isn't real
 
@@ -65,9 +64,11 @@ function iterateThroughSheet(currentDate, endDate){
 
 };
 
-function _getEventObject(){
-  // TODO - Function not done
-  console.log("MAKE THIS")
+
+function _getEventObject(targetCalendar, eventLink){
+  var eventId = eventLink.split('eid=')[1];
+  eventId = decodeURIComponent(eventId);
+  return targetCalendar.getEventById(eventId)
 }
 
 
@@ -95,7 +96,7 @@ function _writeEventRow(calendarEvent, targetRow){
   eventIdCell.setvalue(calendarEvent.getId());
   descriptionCell.setvalue(calendarEvent.getDescription());
   lastModifiedCell.setvalue(calendarEvent.getLastUpdated());
-  eventLinkCell.setvalue(eventLink); 
+  eventLinkCell.setvalue(eventLink);
 }
 
 
@@ -178,15 +179,27 @@ function iterateThroughCalendarEvents(calendarEvents){
 }
 
 
- // ### TODO ###
+// ### TODO ###
+// TODO - Test current script is functional
+// TODO - Test current script runs as intended
+// TODO - Make sure data on spreadsheet usable
+// TODO - Keep hidden cell for the startRow
+// TODO - Ensure correct columns in use
+
+// TODO - Work on the edit function
+// TODO - On edit function needs to update last edited column
+
+// TODO - Only use date as needed (don't return as date)
+// TODO - Correct variable names to use JavaScript style
+// TODO - Reorganize code
 // TODO - Deleting events?
-// TODO - Replace headers with constants
+
+
+// ### Documentation & Comments
+// TODO - Sync flow names and main titles
 // TODO - Combine README and FLOW
 // TODO - Include Instructions in README for new calendar
-// TODO - Correct variable names to use JavaScript style
-// TODO - Only use date as needed (don't return as date)
-// TODO - Sync flow names and main titles
-// TODO - On edit function needs to update last edited column
+
 
 
 /* README -
