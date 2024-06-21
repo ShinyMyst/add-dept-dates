@@ -2,11 +2,14 @@
 // Main
 // ###################
 function main(daysInScope){
+  // Debug
+  daysInScope = 30
   // ### Set Dates ###
   var currentDate = new Date();
   currentDate.setHours(0, 0, 0, 0) // Set time to midnight to include all events
   var endDate = new Date(currentDate.getTime());
   endDate.setDate(endDate.getDate() + daysInScope)
+  console.log(currentDate, endDate)
 
   // ### Get Data ###
   // Calendar
@@ -34,17 +37,19 @@ function iterateThroughSheet(currentDate, endDate){
   // TODO - Better to use endDate or start Date index?
   const endDateIndex = HEADERS.indexOf("Ends")
   var calendarEvent = null
-  let currentRow = _getStartRow(SHEET_DATA, endDateIndex);
+  let currentRow = _getStartRow(endDateIndex, currentDate);
   let currentEventDate = new Date(SHEET_DATA[currentRow][endDateIndex])
 
-  while (currentRow < SHEET_DATA.length && endDate >= currentEventDate >= currentDate) {
+  while (currentRow < SHEET_DATA.length && endDate >= currentEventDate && currentEventDate >= currentDate) {
     // If event lacks calendar link, make calendar event
     if (!SHEET_DATA[currentRow][HEADERS.indexOf("Calendar Link")]) {
+      console.log("IF")
       calendarEvent = _createCalendarEvent(SHEET_DATA[currentRow])
     }
 
     // Else, determine if sheet or calendar more up-to-date
     else {
+      console.log("ELSE")
       let sheetLastUpdated = SHEET_DATA[currentRow][HEADERS.indexOf("Last Edited")]
       let calendarLastUpdated = getCalendarLastModified(eventUrl);
       calendarEvent = _getEventObject() // TODO this function isn't real
@@ -69,7 +74,7 @@ function _getEventObject(targetCalendar, eventLink){
   var eventId = eventLink.split('eid=')[1];
   eventId = decodeURIComponent(eventId);
   return targetCalendar.getEventById(eventId)
-}
+};
 
 
 function _writeEventRow(calendarEvent, targetRow){
@@ -89,6 +94,7 @@ function _writeEventRow(calendarEvent, targetRow){
   let eventLinkCell = PAGE.getRange(targetRow, HEADERS.indexOf("Event Link"));
 
   // Set Values
+  console.log("SET VALUES")
   monthCell.setvalue(calendarEvent.getStartTime().getMonth()+1);
   startsCell.setvalue(calendarEvent.getStartTime());
   endsCell.setvalue(calendarEvent.getEndTime());
@@ -97,46 +103,42 @@ function _writeEventRow(calendarEvent, targetRow){
   descriptionCell.setvalue(calendarEvent.getDescription());
   lastModifiedCell.setvalue(calendarEvent.getLastUpdated());
   eventLinkCell.setvalue(eventLink);
-}
+};
 
 
 function _updateCalendarEvent(calendarEvent){
     // TODO - Function not done
     calendarEvent.setTitle = eventData[HEADERS.indexOf("Event")];
     // TODO - How cna we update time while not overwriting an actual event with times with default time values
-}
+};
 
 
 function _createCalendarEvent(eventData){
   let title = eventData[HEADERS.indexOf("Event")];
-  let calendar = eventData[HEADERS.indexOf("Calendar")];
+  let calendarName = eventData[HEADERS.indexOf("Calendar")];
   let start = new Date(eventData[HEADERS.indexOf("Starts")]);
   let end = new Date(eventData[HEADERS.indexOf("Ends")]);
   let description = eventData[HEADERS.indexOf("Description")];
-  let event = calendar.createEvent(title, start, end, {description: description});
-  setExtendedProperty(event)
+  let targetCalendar = CALENDARS[calendarName];
+
+  let event = targetCalendar.createEvent(title, start, end, {description: description});
+  event.setTag("pairedEvent", "true")
 
   return event
-}
-
-
-function setExtendedProperty(calendarEvent){
-  var extendedProps = {
-    private: {
-        "pairedRow": "true"
-    }
-  }
-  calendarEvent.setExtendedProperties(extendedProps.private);
 };
+
 
 function _writeLastUpdated(eventRowInt, updateDate) {
   // Changes the last updated column for given event
+  console.log("COORDS", eventRowInt, HEADERS.indexOf("Last Modified"))
   let cell = PAGE.getRange(eventRowInt, HEADERS.indexOf("Last Modified"))
+  console.log("CELL")
+  console.log(cell)
   cell.setvalue(updateDate)
-}
+};
 
 
-function _getStartRow(eventIndex) {
+function _getStartRow(eventIndex, currentDate) {
   // Determines the row of first event that hasn't ended.
   // Keep in mind startRow is an estimate based on previous status of sheet.
 
